@@ -1,6 +1,7 @@
 package com.qwad1000.kpt;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -49,6 +50,15 @@ public class MainActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         mainListView = (ListView) findViewById(R.id.content_list);
+        mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, ScheduleViewActivity.class);
+                TransportItem currentTransportItem = (TransportItem) parent.getItemAtPosition(position);
+                intent.putExtra("transport_schedule_website", currentTransportItem.getUrl().toString());
+                MainActivity.this.startActivity(intent);
+            }
+        });
 
         progressBar = (ProgressBar) findViewById(R.id.download_progressBar);
         selectNavigationDrawerItem(0);
