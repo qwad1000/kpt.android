@@ -1,7 +1,6 @@
 package com.qwad1000.kpt;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -10,10 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.*;
 import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
@@ -29,7 +25,8 @@ public class MainActivity extends Activity {
     private ListView mainListView;
     private TransportListAdapter transportListAdapter;
 
-    protected ProgressDialog progressDialog;
+    //protected ProgressDialog progressDialog;
+    private ProgressBar progressBar;
 
     private String currentTransportType;
     private boolean isWeekend;
@@ -46,13 +43,15 @@ public class MainActivity extends Activity {
         mNavigationDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mTransportType));
         mNavigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        currentTransportType = getResources().getString(R.string.bus);
+        isWeekend = true;
+
         getActionBar().setHomeButtonEnabled(true);
 
         mainListView = (ListView) findViewById(R.id.content_list);
 
-        currentTransportType = getResources().getString(R.string.bus);
-        isWeekend = true;
+        progressBar = (ProgressBar) findViewById(R.id.download_progressBar);
+        selectNavigationDrawerItem(0);
     }
 
     @Override
@@ -66,28 +65,48 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh_btn:
-
-                String resource = getResources().getString(isWeekend ? R.string.weekend_day_url : R.string.working_day_url);
-                progressDialog = ProgressDialog.show(MainActivity.this, "Working...", "request to server", true, false);
-                new ParseSite().execute(resource);
+                downloadData();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            //selectItem(position);
+            selectNavigationDrawerItem(position);
         }
     }
 
+    public void selectNavigationDrawerItem(int position) {
+        mNavigationDrawerList.setItemChecked(position, true);
+        setTitle(mTransportType[position]);
+        mDrawerLayout.closeDrawer(mNavigationDrawerList);
+
+        //todo: implement normal getting of current.
+        if (mTransportType[position].equals("Bus")) {
+            currentTransportType = getResources().getString(R.string.bus);
+        } else if (mTransportType[position].equals("Tram")) {
+            currentTransportType = getResources().getString(R.string.tram);
+        } else if (mTransportType[position].equals("Trolley")) {
+            currentTransportType = getResources().getString(R.string.trolley);
+        }
+        Log.d("transportTYpe", currentTransportType);
+        downloadData();
+    }
+
+    private void downloadData() {
+        String resource = getResources().getString(isWeekend ? R.string.weekend_day_url : R.string.working_day_url);
+        progressBar.setVisibility(View.VISIBLE);
+        new ParseSite().execute(resource);
+    }
+
+    //todo: refactor this to da level
     private class ParseSite extends AsyncTask<String, String, List<TransportItem>> {
 
         protected List<TransportItem> doInBackground(String... arg) {
-            List<TransportItem> output = new ArrayList<>();
+            List<TransportItem> output = new ArrayList<TransportItem>();
             try {
                 HtmlHelper hh = new HtmlHelper(new URL(arg[0]));
                 String currentDayType = getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
@@ -98,23 +117,10 @@ public class MainActivity extends Activity {
                     String url = node.getAttributeByName("href");
                     CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
 
-
-                    //String num = (String)node.getChildTagList().get(0).getChildTagList().get(0).getText();
-                    //String num = (String)node.getChildTags()[0].getText();
-
-                    //publishProgress(url);
                     TransportItem item = new TransportItem(0, ch.toString(), TransportType.Tram, new URL(url));
+                    //todo: add id initialize
                     output.add(item);
                 }
-                /*URL url = new URL(arg[0]);
-                InputStream stream = url.openStream();
-                InputStreamReader reader = new InputStreamReader(stream);
-                Scanner scanner = new Scanner(reader);
-                String str = scanner.next();
-                Log.d("asdf", str);
-                publishProgress(str);
-                Thread.sleep(1000);*/
-
             } catch (IOException e) {
                 publishProgress("cant do it");
                 Log.e("htmlErr", e.getMessage());
@@ -129,13 +135,10 @@ public class MainActivity extends Activity {
             Toast.makeText(MainActivity.this, progressString[0], Toast.LENGTH_SHORT);
         }
 
-        //Событие по окончанию парсинга
         protected void onPostExecute(List<TransportItem> output) {
-            //Убираем диалог загрузки
-            progressDialog.dismiss();
-            //Находим ListView
+            // progressDialog.dismiss();
+            progressBar.setVisibility(View.GONE);
             mainListView = (ListView) findViewById(R.id.content_list);
-            //Загружаем в него результат работы doInBackground
             transportListAdapter = new TransportListAdapter(MainActivity.this, output);
             mainListView.setAdapter(transportListAdapter);
         }

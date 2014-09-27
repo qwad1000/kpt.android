@@ -7,10 +7,16 @@
     <string name="schedule_url">http://193.23.225.210/rozklad/</string>
     <!--<string name="url_tram">http://193.23.225.210/rozklad/tram/rob/</string>-->
 
+    <string-array name="transport_type_auxiliary">
+        <item>bus</item>
+        <item>trolley</item>
+        <item>tram</item>
+    </string-array>
+
     <string name="working_day">rob</string>
     <string name="weekend_day">vih</string>
 
     <string name="tram">tram</string>
     <string name="bus">avt</string>
-    <string name="trolley">troll</string>
+    <string name="trolley">trol</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--todo implement instead of  <string-array name="transport_type_auxiliary" >-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/trans_test" android:menuCategory="container">
+        <item android:id="@+id/test" android:title="adsf"/>
+        <item android:id="@+id/test1" android:title="sdfg"/>
+    </group>
+</menu>
