@@ -21,8 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity
-{
+public class MainActivity extends Activity {
     private String[] mTransportType;
     private DrawerLayout mDrawerLayout;
     private ListView mNavigationDrawerList;
@@ -36,34 +35,28 @@ public class MainActivity extends Activity
     private boolean isWeekend;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mTransportType = getResources().getStringArray(R.array.transport_type);
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mNavigationDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mTransportType));
+        mNavigationDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mTransportType));
         mNavigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
 
-
         mainListView = (ListView) findViewById(R.id.content_list);
 
         currentTransportType = getResources().getString(R.string.bus);
         isWeekend = true;
-
-//        String resource = getResources().getString(R.string.url);
-//        progressDialog = ProgressDialog.show(MainActivity.this, "Working...","request to server", true, false);
-//        //new ParseSite().execute(resource);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
@@ -75,7 +68,7 @@ public class MainActivity extends Activity
             case R.id.refresh_btn:
 
                 String resource = getResources().getString(isWeekend ? R.string.weekend_day_url : R.string.working_day_url);
-                progressDialog = ProgressDialog.show(MainActivity.this, "Working...","request to server", true, false);
+                progressDialog = ProgressDialog.show(MainActivity.this, "Working...", "request to server", true, false);
                 new ParseSite().execute(resource);
                 return true;
             default:
@@ -90,18 +83,18 @@ public class MainActivity extends Activity
             //selectItem(position);
         }
     }
+
     private class ParseSite extends AsyncTask<String, String, List<TransportItem>> {
 
         protected List<TransportItem> doInBackground(String... arg) {
-            List<TransportItem> output = new ArrayList<TransportItem>();
-            try
-            {
+            List<TransportItem> output = new ArrayList<>();
+            try {
                 HtmlHelper hh = new HtmlHelper(new URL(arg[0]));
                 String currentDayType = getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
                 List<TagNode> links = hh.getLinks(getResources().getString(R.string.schedule_url),
                         currentTransportType, currentDayType);
 
-                for(TagNode node : links){
+                for (TagNode node : links) {
                     String url = node.getAttributeByName("href");
                     CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
 
@@ -122,19 +115,17 @@ public class MainActivity extends Activity
                 publishProgress(str);
                 Thread.sleep(1000);*/
 
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 publishProgress("cant do it");
                 Log.e("htmlErr", e.getMessage());
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
             return output;
         }
-        protected void onProgressUpdate(String... progressString){
+
+        protected void onProgressUpdate(String... progressString) {
             Toast.makeText(MainActivity.this, progressString[0], Toast.LENGTH_SHORT);
         }
 
@@ -143,9 +134,10 @@ public class MainActivity extends Activity
             //Убираем диалог загрузки
             progressDialog.dismiss();
             //Находим ListView
-            ListView listview = (ListView) findViewById(R.id.content_list);
+            mainListView = (ListView) findViewById(R.id.content_list);
             //Загружаем в него результат работы doInBackground
-            listview.setAdapter(transportListAdapter = new TransportListAdapter(MainActivity.this, output));
+            transportListAdapter = new TransportListAdapter(MainActivity.this, output);
+            mainListView.setAdapter(transportListAdapter);
         }
     }
 }
