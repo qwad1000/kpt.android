@@ -44,10 +44,7 @@ public class MainActivity extends Activity {
         mNavigationDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mTransportType));
         mNavigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        currentTransportType = getResources().getString(R.string.bus);
         isWeekend = true;
-
-        getActionBar().setHomeButtonEnabled(true);
 
         mainListView = (ListView) findViewById(R.id.content_list);
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -56,6 +53,10 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this, ScheduleViewActivity.class);
                 TransportItem currentTransportItem = (TransportItem) parent.getItemAtPosition(position);
                 intent.putExtra("transport_schedule_website", currentTransportItem.getUrl().toString());
+                intent.putExtra("transport_number", currentTransportItem.getNumber());
+                intent.putExtra("transport_type", currentTransportType);
+                intent.putExtra("daytype", isWeekend);
+
                 MainActivity.this.startActivity(intent);
             }
         });
@@ -68,6 +69,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.dayType_btn).setChecked(isWeekend);
         return true;
     }
 
@@ -77,6 +79,10 @@ public class MainActivity extends Activity {
             case R.id.refresh_btn:
                 downloadData();
                 return true;
+            case R.id.dayType_btn:
+                isWeekend = !isWeekend;
+                item.setChecked(isWeekend);
+                downloadData();
             default:
                 return super.onOptionsItemSelected(item);
         }

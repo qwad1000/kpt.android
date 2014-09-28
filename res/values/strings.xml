@@ -11,4 +11,6 @@
     <!--<string name="url">http://kpt.kiev.ua/</string>-->
     <!--<string name="url_tram">http://193.23.225.210/rozklad/tram/rob/</string>-->
     <string name="refresh_list">Refresh</string>
+    <string name="weekend">Weekend</string>
+    <string name="workday">Workday</string>
 </resources>
