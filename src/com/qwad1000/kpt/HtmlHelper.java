@@ -22,19 +22,16 @@ public class HtmlHelper {
         rootNode = cleaner.clean(htmlPage, "windows-1251"); //windows-1251
     }
 
-    List<TagNode> getLinks(String rootUrl, String transType, String dayType)
-    {
-        List <TagNode> tagNodeList = new ArrayList<TagNode>();
+    List<TagNode> getLinks(String rootUrl, String transType, String dayType) {
+        List<TagNode> tagNodeList = new ArrayList<TagNode>();
         String str = rootUrl + transType + "/" + dayType + "/";
-        //"http://kpt.kiev.ua/ua/schedule/rozklad/"+transType+"/"+dayType+"/";//"tram/"+"rob/";
+        //"http://kpt.kiev.ua/ua/schedule/rozklad/"+transType+"/"+dayType+"/";//"tram_url/"+"rob/";
 
 
         TagNode linkElements[] = rootNode.getElementsByName("a", true);
-        for (int i = 0; linkElements != null && i < linkElements.length; i++)
-        {
+        for (int i = 0; linkElements != null && i < linkElements.length; i++) {
             String classType = linkElements[i].getAttributeByName("href");
-            if (classType != null && classType.contains(str))
-            {
+            if (classType != null && classType.contains(str)) {
                 tagNodeList.add(linkElements[i]);
             }
         }

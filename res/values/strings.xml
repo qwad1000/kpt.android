@@ -2,14 +2,18 @@
 <resources>
     <string name="app_name">MainActivity</string>
     <string-array name="transport_type">
-        <item>Bus</item>
-        <item>Trolley</item>
-        <item>Tram</item>
+        <item>@string/bus</item>
+        <item>@string/trolleybus</item>
+        <item>@string/tram</item>
     </string-array>
+
+    <string name="tram">Tram</string>
+    <string name="trolleybus">Trolleybus</string>
+    <string name="bus">Bus</string>
 
 
     <!--<string name="url">http://kpt.kiev.ua/</string>-->
-    <!--<string name="url_tram">http://193.23.225.210/rozklad/tram/rob/</string>-->
+    <!--<string name="url_tram">http://193.23.225.210/rozklad/tram_url/rob/</string>-->
     <string name="refresh_list">Refresh</string>
     <string name="weekend">Weekend</string>
     <string name="workday">Workday</string>

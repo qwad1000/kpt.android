@@ -26,10 +26,9 @@ public class MainActivity extends Activity {
     private ListView mainListView;
     private TransportListAdapter transportListAdapter;
 
-    //protected ProgressDialog progressDialog;
     private ProgressBar progressBar;
 
-    private String currentTransportType;
+    private String currentTransportTypeArg;
     private boolean isWeekend;
 
     @Override
@@ -41,7 +40,12 @@ public class MainActivity extends Activity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mNavigationDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mTransportType));
+        //mNavigationDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mTransportType));
+        List<TransportTypeEnum> transportTypeEnumList = new ArrayList<>();
+        for (TransportTypeEnum i : TransportTypeEnum.values()) {
+            transportTypeEnumList.add(i);
+        }
+        mNavigationDrawerList.setAdapter(new DrawableListAdapter(this, transportTypeEnumList));
         mNavigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         isWeekend = true;
@@ -54,7 +58,7 @@ public class MainActivity extends Activity {
                 TransportItem currentTransportItem = (TransportItem) parent.getItemAtPosition(position);
                 intent.putExtra("transport_schedule_website", currentTransportItem.getUrl().toString());
                 intent.putExtra("transport_number", currentTransportItem.getNumber());
-                intent.putExtra("transport_type", currentTransportType);
+                intent.putExtra("transport_type", currentTransportTypeArg);
                 intent.putExtra("daytype", isWeekend);
 
                 MainActivity.this.startActivity(intent);
@@ -101,14 +105,14 @@ public class MainActivity extends Activity {
         mDrawerLayout.closeDrawer(mNavigationDrawerList);
 
         //todo: implement normal getting of current.
-        if (mTransportType[position].equals("Bus")) {
-            currentTransportType = getResources().getString(R.string.bus);
-        } else if (mTransportType[position].equals("Tram")) {
-            currentTransportType = getResources().getString(R.string.tram);
-        } else if (mTransportType[position].equals("Trolley")) {
-            currentTransportType = getResources().getString(R.string.trolley);
+        if (mTransportType[position].equals(getResources().getString(R.string.bus))) {
+            currentTransportTypeArg = getResources().getString(R.string.bus_url);
+        } else if (mTransportType[position].equals(getResources().getString(R.string.tram))) {
+            currentTransportTypeArg = getResources().getString(R.string.tram_url);
+        } else if (mTransportType[position].equals(getResources().getString(R.string.trolleybus))) {
+            currentTransportTypeArg = getResources().getString(R.string.trolley_url);
         }
-        Log.d("transportTYpe", currentTransportType);
+        Log.d("transportTYpe", currentTransportTypeArg);
         downloadData();
     }
 
@@ -127,13 +131,13 @@ public class MainActivity extends Activity {
                 HtmlHelper hh = new HtmlHelper(new URL(arg[0]));
                 String currentDayType = getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
                 List<TagNode> links = hh.getLinks(getResources().getString(R.string.schedule_url),
-                        currentTransportType, currentDayType);
+                        currentTransportTypeArg, currentDayType);
 
                 for (TagNode node : links) {
                     String url = node.getAttributeByName("href");
                     CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
 
-                    TransportItem item = new TransportItem(0, ch.toString(), TransportType.Tram, new URL(url));
+                    TransportItem item = new TransportItem(0, ch.toString(), TransportTypeEnum.Tram, new URL(url));
                     //todo: add id initialize
                     output.add(item);
                 }
@@ -152,7 +156,6 @@ public class MainActivity extends Activity {
         }
 
         protected void onPostExecute(List<TransportItem> output) {
-            // progressDialog.dismiss();
             progressBar.setVisibility(View.GONE);
             mainListView = (ListView) findViewById(R.id.content_list);
             transportListAdapter = new TransportListAdapter(MainActivity.this, output);

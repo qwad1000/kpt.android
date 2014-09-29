@@ -8,15 +8,16 @@ import java.net.URL;
 public class TransportItem {
     private int id;
     private String number;
-    private TransportType type;
+    private TransportTypeEnum type;
     private URL url;
 
-    public TransportItem(int id, String number, TransportType type, URL url) {
+    public TransportItem(int id, String number, TransportTypeEnum type, URL url) {
         this.id = id;
         this.number = number;
         this.type = type;
         this.url = url;
     }
+
     public URL getUrl() {
         return url;
     }
@@ -41,11 +42,11 @@ public class TransportItem {
         this.number = number;
     }
 
-    public TransportType getType() {
+    public TransportTypeEnum getType() {
         return type;
     }
 
-    public void setType(TransportType type) {
+    public void setType(TransportTypeEnum type) {
         this.type = type;
     }
 }

@@ -5,7 +5,7 @@
     <string name="working_day_url">http://kpt.kiev.ua/ua/schedule/rozklad/rozklad_rob.htm</string>
     <string name="weekend_day_url">http://kpt.kiev.ua/ua/schedule/rozklad/rozklad_vih.htm</string>
     <string name="schedule_url">http://193.23.225.210/rozklad/</string>
-    <!--<string name="url_tram">http://193.23.225.210/rozklad/tram/rob/</string>-->
+    <!--<string name="url_tram">http://193.23.225.210/rozklad/tram_url/rob/</string>-->
 
     <string-array name="transport_type_auxiliary">
         <item>bus</item>
@@ -16,7 +16,7 @@
     <string name="working_day">rob</string>
     <string name="weekend_day">vih</string>
 
-    <string name="tram">tram</string>
-    <string name="bus">avt</string>
-    <string name="trolley">trol</string>
+    <string name="tram_url">tram</string>
+    <string name="bus_url">avt</string>
+    <string name="trolley_url">trol</string>
 </resources>
