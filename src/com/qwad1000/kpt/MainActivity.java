@@ -10,7 +10,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
@@ -21,14 +24,15 @@ import java.util.List;
 public class MainActivity extends Activity {
     private String[] mTransportType;
     private DrawerLayout mDrawerLayout;
-    private ListView mNavigationDrawerList;
+    private ListView mNavigationDrawerListView;
 
     private ListView mainListView;
     private TransportListAdapter transportListAdapter;
+    private DrawableListAdapter drawableListAdapter;
 
     private ProgressBar progressBar;
 
-    private String currentTransportTypeArg;
+    private TransportTypeEnum currentTransportType;
     private boolean isWeekend;
 
     @Override
@@ -38,15 +42,14 @@ public class MainActivity extends Activity {
 
         mTransportType = getResources().getStringArray(R.array.transport_type);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mNavigationDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mNavigationDrawerListView = (ListView) findViewById(R.id.left_drawer);
 
-        //mNavigationDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mTransportType));
         List<TransportTypeEnum> transportTypeEnumList = new ArrayList<>();
         for (TransportTypeEnum i : TransportTypeEnum.values()) {
             transportTypeEnumList.add(i);
         }
-        mNavigationDrawerList.setAdapter(new DrawableListAdapter(this, transportTypeEnumList));
-        mNavigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mNavigationDrawerListView.setAdapter(drawableListAdapter = new DrawableListAdapter(this, transportTypeEnumList));
+        mNavigationDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
 
         isWeekend = true;
 
@@ -58,7 +61,7 @@ public class MainActivity extends Activity {
                 TransportItem currentTransportItem = (TransportItem) parent.getItemAtPosition(position);
                 intent.putExtra("transport_schedule_website", currentTransportItem.getUrl().toString());
                 intent.putExtra("transport_number", currentTransportItem.getNumber());
-                intent.putExtra("transport_type", currentTransportTypeArg);
+                intent.putExtra("transport_type", currentTransportType.getName(MainActivity.this));
                 intent.putExtra("daytype", isWeekend);
 
                 MainActivity.this.startActivity(intent);
@@ -100,19 +103,12 @@ public class MainActivity extends Activity {
     }
 
     public void selectNavigationDrawerItem(int position) {
-        mNavigationDrawerList.setItemChecked(position, true);
+        mNavigationDrawerListView.setItemChecked(position, true);
         setTitle(mTransportType[position]);
-        mDrawerLayout.closeDrawer(mNavigationDrawerList);
+        mDrawerLayout.closeDrawer(mNavigationDrawerListView);
 
-        //todo: implement normal getting of current.
-        if (mTransportType[position].equals(getResources().getString(R.string.bus))) {
-            currentTransportTypeArg = getResources().getString(R.string.bus_url);
-        } else if (mTransportType[position].equals(getResources().getString(R.string.tram))) {
-            currentTransportTypeArg = getResources().getString(R.string.tram_url);
-        } else if (mTransportType[position].equals(getResources().getString(R.string.trolleybus))) {
-            currentTransportTypeArg = getResources().getString(R.string.trolley_url);
-        }
-        Log.d("transportTYpe", currentTransportTypeArg);
+        currentTransportType = (TransportTypeEnum) drawableListAdapter.getItem(position);
+        Log.d("transportType", currentTransportType.getName(this));
         downloadData();
     }
 
@@ -128,16 +124,20 @@ public class MainActivity extends Activity {
         protected List<TransportItem> doInBackground(String... arg) {
             List<TransportItem> output = new ArrayList<TransportItem>();
             try {
+                Log.d("htmlHelper: url", arg[0]);
                 HtmlHelper hh = new HtmlHelper(new URL(arg[0]));
                 String currentDayType = getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
                 List<TagNode> links = hh.getLinks(getResources().getString(R.string.schedule_url),
-                        currentTransportTypeArg, currentDayType);
+                        currentTransportType.getUrlPart(MainActivity.this), currentDayType);
 
                 for (TagNode node : links) {
                     String url = node.getAttributeByName("href");
                     CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
 
-                    TransportItem item = new TransportItem(0, ch.toString(), TransportTypeEnum.Tram, new URL(url));
+                    TransportTypeEnum en = (TransportTypeEnum) mNavigationDrawerListView.getSelectedItem();
+                    //TransportTypeEnum en = (TransportTypeEnum)drawableListAdapter.getItem();
+                    TransportItem item = new TransportItem(0, ch.toString(), en, new URL(url));
+
                     //todo: add id initialize
                     output.add(item);
                 }
@@ -152,7 +152,7 @@ public class MainActivity extends Activity {
         }
 
         protected void onProgressUpdate(String... progressString) {
-            Toast.makeText(MainActivity.this, progressString[0], Toast.LENGTH_SHORT);
+            Toast.makeText(MainActivity.this, progressString[0], Toast.LENGTH_SHORT).show();
         }
 
         protected void onPostExecute(List<TransportItem> output) {

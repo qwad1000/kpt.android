@@ -27,8 +27,7 @@ public class DrawableListAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        mTransportNames.get(position);
-        return null;
+        return mTransportNames.get(position);
     }
 
     @Override

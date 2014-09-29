@@ -40,6 +40,22 @@ public enum TransportTypeEnum {
         }
         return context.getResources().getString(id);
     }
+
+    public String getUrlPart(Context context) {
+        int id = 0;
+        switch (this) {
+            case Bus:
+                id = R.string.bus_url;
+                break;
+            case Trolley:
+                id = R.string.trolley_url;
+                break;
+            case Tram:
+                id = R.string.tram_url;
+                break;
+        }
+        return context.getResources().getString(id);
+    }
 }
 
 
