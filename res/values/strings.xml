@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MainActivity</string>
-    <string-array name="transport_type">
-        <item>@string/bus</item>
-        <item>@string/trolleybus</item>
-        <item>@string/tram</item>
-    </string-array>
+    <!--<string-array name="transport_type">-->
+    <!--<item>@string/bus</item>-->
+    <!--<item>@string/trolleybus</item>-->
+    <!--<item>@string/tram</item>-->
+    <!--</string-array>-->
 
     <string name="tram">Tram</string>
     <string name="trolleybus">Trolleybus</string>

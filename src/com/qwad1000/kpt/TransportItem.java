@@ -10,12 +10,14 @@ public class TransportItem {
     private String number;
     private TransportTypeEnum type;
     private URL url;
+    private boolean isWeekend;
 
-    public TransportItem(int id, String number, TransportTypeEnum type, URL url) {
+    public TransportItem(int id, String number, TransportTypeEnum type, URL url, boolean isWeekend) {
         this.id = id;
         this.number = number;
         this.type = type;
         this.url = url;
+        this.isWeekend = isWeekend;
     }
 
     public URL getUrl() {
@@ -39,8 +41,8 @@ public class TransportItem {
     }
 
     public void setNumber(String number) {
-        this.number = number;
-    }
+        this.number = number.trim();
+    }//warning : test it
 
     public TransportTypeEnum getType() {
         return type;
@@ -48,5 +50,13 @@ public class TransportItem {
 
     public void setType(TransportTypeEnum type) {
         this.type = type;
+    }
+
+    public boolean isWeekend() {
+        return isWeekend;
+    }
+
+    public void setWeekend(boolean isWeekend) {
+        this.isWeekend = isWeekend;
     }
 }

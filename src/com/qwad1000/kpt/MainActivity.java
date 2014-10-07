@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import com.qwad1000.kpt.da.webload.HtmlHelper;
 import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    private String[] mTransportType;
     private DrawerLayout mDrawerLayout;
     private ListView mNavigationDrawerListView;
 
@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTransportType = getResources().getStringArray(R.array.transport_type);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerListView = (ListView) findViewById(R.id.left_drawer);
 
@@ -48,10 +47,9 @@ public class MainActivity extends Activity {
         for (TransportTypeEnum i : TransportTypeEnum.values()) {
             transportTypeEnumList.add(i);
         }
+
         mNavigationDrawerListView.setAdapter(drawableListAdapter = new DrawableListAdapter(this, transportTypeEnumList));
         mNavigationDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
-
-        isWeekend = true;
 
         mainListView = (ListView) findViewById(R.id.content_list);
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,7 +67,31 @@ public class MainActivity extends Activity {
         });
 
         progressBar = (ProgressBar) findViewById(R.id.download_progressBar);
-        selectNavigationDrawerItem(0);
+
+
+        if (savedInstanceState != null) {
+            currentTransportType = TransportTypeEnum.values()[savedInstanceState.getInt("last_transport_type")];
+            isWeekend = savedInstanceState.getBoolean("last_day_type");
+        } else {
+            isWeekend = true; //todo:current day init
+            currentTransportType = TransportTypeEnum.Bus;
+        }
+
+        selectNavigationDrawerItem(currentTransportType.toInt());
+
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt("last_transport_type", currentTransportType.toInt());
+        savedInstanceState.putBoolean("last_day_type", isWeekend);
+
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -103,11 +125,11 @@ public class MainActivity extends Activity {
     }
 
     public void selectNavigationDrawerItem(int position) {
+        currentTransportType = (TransportTypeEnum) drawableListAdapter.getItem(position);
         mNavigationDrawerListView.setItemChecked(position, true);
-        setTitle(mTransportType[position]);
+        setTitle(currentTransportType.getName(this));
         mDrawerLayout.closeDrawer(mNavigationDrawerListView);
 
-        currentTransportType = (TransportTypeEnum) drawableListAdapter.getItem(position);
         Log.d("transportType", currentTransportType.getName(this));
         downloadData();
     }
@@ -135,8 +157,7 @@ public class MainActivity extends Activity {
                     CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
 
                     TransportTypeEnum en = (TransportTypeEnum) mNavigationDrawerListView.getSelectedItem();
-                    //TransportTypeEnum en = (TransportTypeEnum)drawableListAdapter.getItem();
-                    TransportItem item = new TransportItem(0, ch.toString(), en, new URL(url));
+                    TransportItem item = new TransportItem(0, ch.toString(), en, new URL(url), isWeekend);
 
                     //todo: add id initialize
                     output.add(item);

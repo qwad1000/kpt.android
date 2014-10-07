@@ -1,4 +1,4 @@
-package com.qwad1000.kpt;
+package com.qwad1000.kpt.da.webload;
 
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
@@ -22,11 +22,10 @@ public class HtmlHelper {
         rootNode = cleaner.clean(htmlPage, "windows-1251"); //windows-1251
     }
 
-    List<TagNode> getLinks(String rootUrl, String transType, String dayType) {
+    public List<TagNode> getLinks(String rootUrl, String transType, String dayType) {
         List<TagNode> tagNodeList = new ArrayList<TagNode>();
         String str = rootUrl + transType + "/" + dayType + "/";
         //"http://kpt.kiev.ua/ua/schedule/rozklad/"+transType+"/"+dayType+"/";//"tram_url/"+"rob/";
-
 
         TagNode linkElements[] = rootNode.getElementsByName("a", true);
         for (int i = 0; linkElements != null && i < linkElements.length; i++) {

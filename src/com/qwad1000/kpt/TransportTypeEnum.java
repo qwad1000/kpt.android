@@ -3,6 +3,8 @@ package com.qwad1000.kpt;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import java.util.Arrays;
+
 /**
  * Created by Сергій on 08.09.2014.
  */
@@ -55,6 +57,10 @@ public enum TransportTypeEnum {
                 break;
         }
         return context.getResources().getString(id);
+    }
+
+    public int toInt() {
+        return Arrays.binarySearch(values(), this);
     }
 }
 
