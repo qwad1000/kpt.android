@@ -1,6 +1,7 @@
 package com.qwad1000.kpt;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,11 +15,15 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import com.qwad1000.kpt.da.webload.HtmlHelper;
-import org.htmlcleaner.TagNode;
+import com.qwad1000.kpt.adapter.DrawableListAdapter;
+import com.qwad1000.kpt.adapter.TransportListAdapter;
+import com.qwad1000.kpt.da.TransportItemDataBaseSource;
+import com.qwad1000.kpt.da.webload.TransportItemWebSource;
+import com.qwad1000.kpt.model.TransportItem;
+import com.qwad1000.kpt.model.TransportTypeEnum;
 
 import java.io.IOException;
-import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +81,10 @@ public class MainActivity extends Activity {
             isWeekend = true; //todo:current day init
             currentTransportType = TransportTypeEnum.Bus;
         }
-
         selectNavigationDrawerItem(currentTransportType.toInt());
-
     }
 
-    @Override
+    @Override //todo: test it. won't do saving on back from activity.
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -106,12 +109,13 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh_btn:
-                downloadData();
+                refreshDataFromWeb();
                 return true;
             case R.id.dayType_btn:
                 isWeekend = !isWeekend;
                 item.setChecked(isWeekend);
-                downloadData();
+                //refreshDataFromWeb();
+                loadMainListData();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -131,44 +135,93 @@ public class MainActivity extends Activity {
         mDrawerLayout.closeDrawer(mNavigationDrawerListView);
 
         Log.d("transportType", currentTransportType.getName(this));
-        downloadData();
+        loadMainListData();
     }
 
-    private void downloadData() {
+    private void refreshDataFromWeb() {
         String resource = getResources().getString(isWeekend ? R.string.weekend_day_url : R.string.working_day_url);
         progressBar.setVisibility(View.VISIBLE);
-        new ParseSite().execute(resource);
+        new ParseSite(this).execute(resource);
     }
 
-    //todo: refactor this to da level
+    private void loadMainListData() {
+        TransportItemDataBaseSource dataBaseSource = new TransportItemDataBaseSource(this);
+        try {
+            dataBaseSource.open();
+            List<TransportItem> list = dataBaseSource.getTransportItemsByType(currentTransportType, isWeekend);
+            if (list.size() > 0) {
+                mainListView = (ListView) findViewById(R.id.content_list);
+                transportListAdapter = new TransportListAdapter(MainActivity.this, list);
+                mainListView.setAdapter(transportListAdapter);
+            } else
+                refreshDataFromWeb();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            refreshDataFromWeb();
+        }
+
+    }
+
     private class ParseSite extends AsyncTask<String, String, List<TransportItem>> {
+        private Context context;
+
+        public ParseSite(Context context) {
+            this.context = context;
+        }
+
 
         protected List<TransportItem> doInBackground(String... arg) {
             List<TransportItem> output = new ArrayList<TransportItem>();
+
             try {
-                Log.d("htmlHelper: url", arg[0]);
-                HtmlHelper hh = new HtmlHelper(new URL(arg[0]));
-                String currentDayType = getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
-                List<TagNode> links = hh.getLinks(getResources().getString(R.string.schedule_url),
-                        currentTransportType.getUrlPart(MainActivity.this), currentDayType);
+                TransportItemWebSource webSource = new TransportItemWebSource(context);
+                TransportItemDataBaseSource dataBaseSource = new TransportItemDataBaseSource(context);
+                dataBaseSource.open();
 
-                for (TagNode node : links) {
-                    String url = node.getAttributeByName("href");
-                    CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
+                List<TransportItem> webGettedItems = webSource.getTransportItemsByType(currentTransportType, isWeekend);
+                List<TransportItem> databaseGettedItems = dataBaseSource.getTransportItemsByType(currentTransportType, isWeekend);
 
-                    TransportTypeEnum en = (TransportTypeEnum) mNavigationDrawerListView.getSelectedItem();
-                    TransportItem item = new TransportItem(0, ch.toString(), en, new URL(url), isWeekend);
-
-                    //todo: add id initialize
-                    output.add(item);
+                //todo: refactor this. crunches
+                for (TransportItem item : databaseGettedItems) {
+                    dataBaseSource.deleteTransportItem(item);
                 }
+
+                for (TransportItem item : webGettedItems) {
+                    item.setId(dataBaseSource.addTransportItem(item));
+                }
+
+                output = webGettedItems;
+
+            } catch (SQLException e) {
+                publishProgress("SQL Error");
+                e.printStackTrace();
             } catch (IOException e) {
-                publishProgress("cant do it");
-                Log.e("htmlErr", e.getMessage());
-            } catch (Exception e) {
+                publishProgress("Cant download from Internet");
                 e.printStackTrace();
             }
-
+//            try {
+//                Log.d("htmlHelper: url", arg[0]);
+//                HtmlHelper hh = new HtmlHelper(new URL(arg[0]));
+//                String currentDayType = getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
+//                List<TagNode> links = hh.getLinks(getResources().getString(R.string.schedule_url),
+//                        currentTransportType.getUrlPart(MainActivity.this), currentDayType);
+//
+//                for (TagNode node : links) {
+//                    String url = node.getAttributeByName("href");
+//                    CharSequence ch = node.getElementListByName("strong", true).get(0).getText();
+//
+//                    TransportTypeEnum en = (TransportTypeEnum) mNavigationDrawerListView.getSelectedItem();
+//                    TransportItem item = new TransportItem(0, ch.toString(), en, new URL(url), isWeekend);
+//
+//                    //todo: add id initialize
+//                    output.add(item);
+//                }
+//            } catch (IOException e) {
+//                publishProgress("cant do it");
+//                Log.e("htmlErr", e.getMessage());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
             return output;
         }
 
@@ -178,9 +231,11 @@ public class MainActivity extends Activity {
 
         protected void onPostExecute(List<TransportItem> output) {
             progressBar.setVisibility(View.GONE);
-            mainListView = (ListView) findViewById(R.id.content_list);
-            transportListAdapter = new TransportListAdapter(MainActivity.this, output);
-            mainListView.setAdapter(transportListAdapter);
+            if (output.size() > 0) {
+                mainListView = (ListView) findViewById(R.id.content_list);
+                transportListAdapter = new TransportListAdapter(context, output);
+                mainListView.setAdapter(transportListAdapter);
+            }
         }
     }
 }

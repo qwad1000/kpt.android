@@ -2,10 +2,11 @@ package com.qwad1000.kpt.da.webload;
 
 import android.content.Context;
 import com.qwad1000.kpt.R;
-import com.qwad1000.kpt.TransportItem;
-import com.qwad1000.kpt.TransportTypeEnum;
+import com.qwad1000.kpt.model.TransportItem;
+import com.qwad1000.kpt.model.TransportTypeEnum;
 import org.htmlcleaner.TagNode;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,12 +23,14 @@ public class TransportItemWebSource {
         this.context = context;
     }
 
-    public List<TransportItem> getTransportItemsByType(TransportTypeEnum typeEnum, boolean isWeekend) {
-        String dayTypeUrlPart = context.getResources().getString(isWeekend ? R.string.weekend_day_url : R.string.working_day_url);
-
+    public List<TransportItem> getTransportItemsByType(TransportTypeEnum typeEnum, boolean isWeekend) throws IOException {
+        String loadStr = context.getResources().getString(isWeekend ? R.string.weekend_day_url : R.string.working_day_url);
+        URL loadURL = new URL(loadStr);
+        htmlHelper = new HtmlHelper(loadURL);
         String filterStr = context.getResources().getString(R.string.schedule_url);
+        String dayPart = context.getResources().getString(isWeekend ? R.string.weekend_day : R.string.working_day);
         List<TagNode> links = htmlHelper.getLinks(filterStr,
-                typeEnum.getUrlPart(context), dayTypeUrlPart);
+                typeEnum.getUrlPart(context), dayPart);
 
         List<TransportItem> loadedItems = new ArrayList<>();
 

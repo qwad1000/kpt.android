@@ -1,4 +1,4 @@
-package com.qwad1000.kpt;
+package com.qwad1000.kpt.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.qwad1000.kpt.R;
+import com.qwad1000.kpt.model.TransportItem;
 
 import java.util.List;
 
@@ -14,13 +16,14 @@ import java.util.List;
  * Created by Сергій on 14.09.2014.
  */
 public class TransportListAdapter extends BaseAdapter {
-    private List<TransportItem>mContent;
+    private List<TransportItem> mContent;
     private Context mContext;
 
-    public TransportListAdapter(Context context, List<TransportItem> list){
+    public TransportListAdapter(Context context, List<TransportItem> list) {
         mContent = list;
         mContext = context;
     }
+
     @Override
     public int getCount() {
         return mContent.size();
@@ -42,10 +45,10 @@ public class TransportListAdapter extends BaseAdapter {
             LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = (LinearLayout) infalInflater.inflate(R.layout.transport_list_item, null);
         }
-        TextView transportNumber = (TextView)((LinearLayout)view).findViewById(R.id.numberTextView);
+        TextView transportNumber = (TextView) ((LinearLayout) view).findViewById(R.id.numberTextView);
         transportNumber.setText(mContent.get(position).getNumber());
 
-        TextView transportURL = (TextView)((LinearLayout)view).findViewById(R.id.urlTextView);
+        TextView transportURL = (TextView) ((LinearLayout) view).findViewById(R.id.urlTextView);
         transportURL.setText(mContent.get(position).getUrl().getPath());
 
         return view;

@@ -1,4 +1,4 @@
-package com.qwad1000.kpt;
+package com.qwad1000.kpt.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.qwad1000.kpt.R;
+import com.qwad1000.kpt.model.TransportTypeEnum;
 
 import java.util.List;
 

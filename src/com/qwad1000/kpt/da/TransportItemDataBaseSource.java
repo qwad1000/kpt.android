@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import com.qwad1000.kpt.TransportItem;
-import com.qwad1000.kpt.TransportTypeEnum;
+import com.qwad1000.kpt.model.TransportItem;
+import com.qwad1000.kpt.model.TransportTypeEnum;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,13 +45,13 @@ public class TransportItemDataBaseSource {
     }
 
     public void deleteTransportItem(TransportItem transportItem) {
-        int id = transportItem.getId();
+        long id = transportItem.getId();
         database.delete(TransportDataBaseHelper.TABLE_TRANSPORTITEMS,
                 TransportDataBaseHelper.COLUMN_ID + " = " + id, null);
     }
 
     public int updateTransportItem(TransportItem transportItem) {
-        int id = transportItem.getId();
+        long id = transportItem.getId();
         ContentValues values = new ContentValues();
         values.put(TransportDataBaseHelper.COLUMN_NUMBER, transportItem.getNumber());
         values.put(TransportDataBaseHelper.COLUMN_IS_WEEKEND, transportItem.isWeekend());
@@ -69,13 +69,13 @@ public class TransportItemDataBaseSource {
         return null;
     }
 
-    public List<TransportItem> getTransportItemsByType(TransportTypeEnum typeEnum) {
+    public List<TransportItem> getTransportItemsByType(TransportTypeEnum typeEnum, boolean isWeekend) {
         List<TransportItem> resultList = new ArrayList<TransportItem>();
 
         Cursor cursor = database.query(TransportDataBaseHelper.TABLE_TRANSPORTITEMS,
                 allTableColumns,
-                TransportDataBaseHelper.COLUMN_TRANSPORT_TYPE + " LIKE ? ",
-                new String[]{String.valueOf(typeEnum.toInt())},
+                TransportDataBaseHelper.COLUMN_TRANSPORT_TYPE + " LIKE ? " + " AND " + TransportDataBaseHelper.COLUMN_IS_WEEKEND + " LIKE ? ",
+                new String[]{String.valueOf(typeEnum.toInt()), String.valueOf(isWeekend ? 1 : 0)},
                 null, null, null);
         cursor.moveToFirst();
 

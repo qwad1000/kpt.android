@@ -18,7 +18,8 @@
                 android:id="@+id/download_progressBar" android:indeterminate="true"
                 android:indeterminateBehavior="cycle"
                 android:indeterminateOnly="true"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                />
         <ListView
                 android:id="@+id/content_list"
                 android:layout_width="match_parent"

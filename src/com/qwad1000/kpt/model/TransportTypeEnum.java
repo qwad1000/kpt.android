@@ -1,7 +1,8 @@
-package com.qwad1000.kpt;
+package com.qwad1000.kpt.model;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import com.qwad1000.kpt.R;
 
 import java.util.Arrays;
 

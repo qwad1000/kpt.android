@@ -19,12 +19,12 @@ public class TransportDataBaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_URL = "url";
     public static final String COLUMN_IS_WEEKEND = "is_weekend";
 
-    private static final String DATABASE_CREATE = "create table " +
-            TABLE_TRANSPORTITEMS + "(" + COLUMN_ID + "integer primary key autoincrement, " +
-            COLUMN_TRANSPORT_TYPE + "integer not null, " +
-            COLUMN_NUMBER + "text not null, " +
-            COLUMN_URL + "text not null, " +
-            COLUMN_IS_WEEKEND + "integer not null);";
+    private static final String DATABASE_CREATE = " create table " +
+            TABLE_TRANSPORTITEMS + "(" + COLUMN_ID + " integer primary key autoincrement, " +
+            COLUMN_TRANSPORT_TYPE + " integer not null, " +
+            COLUMN_NUMBER + " text not null, " +
+            COLUMN_URL + " text not null, " +
+            COLUMN_IS_WEEKEND + " integer not null);";
 
     public TransportDataBaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,6 +32,7 @@ public class TransportDataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d("creating: ", DATABASE_CREATE);
         db.execSQL(DATABASE_CREATE);
     }
 
